@@ -86,6 +86,8 @@ public class TutorialController {
 		}
 	}
 
+	//Actualizando por titulo
+
 	@PutMapping("/tutorials/update/{title}")
 	public ResponseEntity<Tutorial> updateTutorial(@PathVariable("title") String titulo, @RequestBody Tutorial tutorial) {
 		List<Tutorial> tutorialData = tutorialRepository.findByTitleContaining(titulo);
