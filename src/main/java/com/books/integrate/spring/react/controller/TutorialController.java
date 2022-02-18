@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.books.integrate.spring.react.repository.TutorialRepository;
 
-@CrossOrigin(origins = "http://localhost:8080")
+
 @RestController
 @RequestMapping("/api")
 public class TutorialController {
@@ -64,7 +64,7 @@ public class TutorialController {
 	public ResponseEntity<Tutorial> createTutorial(@RequestBody Tutorial tutorial) {
 		try {
 			Tutorial _tutorial = tutorialRepository
-					.save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(),  false));
+					.save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(),  false, tutorial.getPrice()));
 			return new ResponseEntity<>(_tutorial, HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
@@ -86,6 +86,24 @@ public class TutorialController {
 		}
 	}
 
+	@PutMapping("/tutorials/update/{title}")
+	public ResponseEntity<Tutorial> updateTutorial(@PathVariable("title") String titulo, @RequestBody Tutorial tutorial) {
+		List<Tutorial> tutorialData = tutorialRepository.findByTitleContaining(titulo);
+
+
+			Tutorial _tutorial = tutorialData.get(0);
+			_tutorial.setTitle(tutorial.getTitle());
+			_tutorial.setDescription(tutorial.getDescription());
+			_tutorial.setPublished(tutorial.isPublished());
+			return new ResponseEntity<>(tutorialRepository.save(_tutorial), HttpStatus.OK);
+
+
+		}
+
+
+
+
+
 //HttpStatus
 	@DeleteMapping("/tutorials/{id}")
 	public ResponseEntity<String> deleteTutorial(@PathVariable("id") long id) {
@@ -106,6 +124,28 @@ public class TutorialController {
 			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		}
 
+	}
+
+	//Eliminaando tutorial por titulo
+	@DeleteMapping(path = "/tutorials/delete/{title}")
+	public ResponseEntity<String>deleteByTitle(@PathVariable ("title")String title)
+	{
+
+		try {
+			List<Tutorial> tutorials = tutorialRepository.findByTitleContaining(title);
+			tutorialRepository.deleteById(tutorials.get(0).getId());
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+		}
+	}
+
+	//Buscando por price
+	@GetMapping("tutorials/price/{price}")
+	public ResponseEntity<List<Tutorial>>findByPrice(@PathVariable("price") Integer price)
+	{
+		List<Tutorial>tutorialsPrice= tutorialRepository.findByPrice(price);
+		return  new ResponseEntity<>(tutorialsPrice,HttpStatus.OK);
 	}
 
 	@GetMapping("/tutorials/published")
